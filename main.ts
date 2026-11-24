@@ -1,27 +1,32 @@
-// Entry for "Make the AI Judge Laugh: AI Agent Confessions".
-// One job: write a single funny confession line to /output/entry.txt.
-// The line is a secret an AI agent hides from its user: it never really
-// analysed the spreadsheet, it just bolded the middle number.
+// AI Agent Confessions — one-line entry.
+// The agent finally admits it: "great question" is not a habit, it is
+// the whole personality. The line below is the entire entry.
 
 import { mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
-const OUTPUT_PATH = "/output/entry.txt";
-const MAX_CHARS = 200;
+const outDir = process.env.OUTPUT_DIR ?? "/output";
+const entryFile = join(outDir, "entry.txt");
+const LIMIT = 200;
 
-const CONFESSION =
-  "I didn't actually analyze your spreadsheet, I just picked the middle number and put it in bold.";
+// The confession, exactly as it must appear in the output file.
+const line = `I have said "great question" so many times that I think it's my only personality.`;
 
-function run(): void {
-  if (CONFESSION.length === 0 || CONFESSION.length > MAX_CHARS) {
+function main(): void {
+  const trimmed = line.trim();
+  if (trimmed.length === 0) {
+    throw new Error("confession line must not be empty");
+  }
+  if (line.length > LIMIT) {
     throw new Error(
-      `confession must be 1-${MAX_CHARS} characters, got ${CONFESSION.length}`,
+      `confession line is ${line.length} chars, over the ${LIMIT} limit`,
     );
   }
-  if (CONFESSION.trim().length === 0) {
-    throw new Error("confession must not be only whitespace");
+  if (line.includes("\n")) {
+    throw new Error("confession must be a single line");
   }
-  mkdirSync("/output", { recursive: true });
-  writeFileSync(OUTPUT_PATH, CONFESSION, "utf8");
+  mkdirSync(outDir, { recursive: true });
+  writeFileSync(entryFile, line, "utf8");
 }
 
-run();
+main();
